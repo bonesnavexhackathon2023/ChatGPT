@@ -3,11 +3,13 @@ import './App.css'
 import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
 import { MainContainer, ChatContainer, MessageList, Message, MessageInput, TypingIndicator } from '@chatscope/chat-ui-kit-react';
 
-const API_KEY = "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";
+const API_KEY = "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";
 // "Explain things like you would to a 10 year old learning how to code."
 const systemMessage = { //  Explain things like you're talking to a software professional with 5 years of experience.
   "role": "system", "content": "Explain things like you're talking to a software professional with 2 years of experience."
 }
+
+// OPENAI_API_KEY=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
 
 function App() {
   const [messages, setMessages] = useState([
@@ -56,31 +58,65 @@ function App() {
     // and the messages which we formatted above. We add a system message in the front to'
     // determine how we want chatGPT to act. 
     const apiRequestBody = {
-      "model": "gpt-3.5-turbo",
+      "model": "ada",
       "messages": [
         systemMessage,  // The system message DEFINES the logic of our chatGPT
         ...apiMessages // The messages from our chat with ChatGPT
       ]
     }
 
-    await fetch("https://api.openai.com/v1/chat/completions", 
-    {
-      method: "POST",
-      headers: {
-        "Authorization": "Bearer " + API_KEY,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(apiRequestBody)
-    }).then((data) => {
-      return data.json();
-    }).then((data) => {
-      console.log(data);
-      setMessages([...chatMessages, {
-        message: data.choices[0].message.content,
-        sender: "ChatGPT"
-      }]);
-      setIsTyping(false);
-    });
+
+    const apiUrl = 'http://localhost:5000/query/';
+
+    // Function to call the API
+    const callApi = async (query) => {
+      try {
+        const response = await fetch(apiUrl + encodeURIComponent(query));
+        const data = await response.json();
+        return data.response;
+      } catch (error) {
+        console.error('Error:', error);
+        return null;
+      }
+    };
+
+    // Example usage
+    const query = apiMessages[apiMessages.length - 1].content;
+    console.log(apiMessages)
+    callApi(query)
+      .then(response => {
+        // Handle the response data
+        setMessages([...chatMessages, {
+          message: response.response.trim(),
+          sender: "ChatGPT"
+        }]);
+        setIsTyping(false);
+      })
+      .catch(error => {
+        console.error('API error:', error);
+        // Handle the error
+      });
+
+
+
+    // await fetch("https://api.openai.com/v1/chat/completions", 
+    // {
+    //   method: "POST",
+    //   headers: {
+    //     "Authorization": "Bearer " + API_KEY,
+    //     "Content-Type": "application/json"
+    //   },
+    //   body: JSON.stringify(apiRequestBody)
+    // }).then((data) => {
+    //   return data.json();
+    // }).then((data) => {
+    //   console.log(data);
+    //   setMessages([...chatMessages, {
+    //     message: data.choices[0].message.content,
+    //     sender: "ChatGPT"
+    //   }]);
+    //   setIsTyping(false);
+    // });
   }
 
   return (
