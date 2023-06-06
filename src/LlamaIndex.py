@@ -23,16 +23,21 @@ def upload_file():
     
     return 'No file uploaded'
 
+@app.route('/delete', methods=['POST'])
+def delete_file():
+    mydir = 'C:\git\ChatGPT\Documentation'
+    filelist = [ f for f in os.listdir(mydir) ]
+    for f in filelist:
+        os.remove(os.path.join(mydir, f))
+
 if __name__ == '__main__':
-    os.environ['OPENAI_API_KEY'] = "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"
+    
 
 # create a SimpleDirectoryReader object
     reader = SimpleDirectoryReader('C:\git\ChatGPT\Documentation')
-    print(reader)
 
 # load data from files
     documents = reader.load_data()
-    print(*documents)
     index = GPTVectorStoreIndex.from_documents(documents)
     # index.save_to_disk('index.json')
     # index = GPTVectorStoreIndex.load_from_disk('index.json')

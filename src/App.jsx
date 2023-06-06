@@ -45,6 +45,16 @@ function App() {
 			});
 	};
 
+  const clearFiles = () => {
+
+    fetch(
+			'http://localhost:5000/delete',
+			{
+				method: 'POST',
+			}
+		)
+	};
+
   const [messages, setMessages] = useState([
     {
       message: "Hello, I'm ChatGPT! Ask me anything!",
@@ -150,7 +160,8 @@ function App() {
 				<p>Select a file to show details</p>
 			)}
         <div>
-          <button onClick={handleSubmission}>Submit</button>
+          <button onClick={handleSubmission}>Load</button>
+          <button onClick={clearFiles}>Clear Files</button>
         </div>
 		  </div>
         <MainContainer>
