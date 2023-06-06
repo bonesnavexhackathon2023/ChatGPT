@@ -1,0 +1,3 @@
+Name: Scott Peterson, Address: 8899 SW Jordan rd.,
+Case number: 70934, Case type: Harassment, Implicated party: John Doe,
+Case status: Open, Phone number: 899-3489, Place occurred: Scottsdale, AZ,

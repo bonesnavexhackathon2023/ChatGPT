@@ -1,50 +1,17 @@
-import React, { useState, useRef } from 'react'
-import { FileUploader } from "react-drag-drop-files";
+import { useState } from 'react'
 import './App.css'
 import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
 import { MainContainer, ChatContainer, MessageList, Message, MessageInput, TypingIndicator } from '@chatscope/chat-ui-kit-react';
-import { saveAs } from 'file-saver';
 
-
+// const API_KEY = "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";
 // "Explain things like you would to a 10 year old learning how to code."
 const systemMessage = { //  Explain things like you're talking to a software professional with 5 years of experience.
   "role": "system", "content": "Explain things like you're talking to a software professional with 2 years of experience."
 }
-const fileTypes = ["TXT", "PDF", "JSX", "CSS"];
+
+// OPENAI_API_KEY=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
 
 function App() {
-  const selectedFile = useRef();
-	const [isFilePicked, setIsFilePicked] = useState(false);
-  const [isSelected, setIsSelected] = useState(false)
-
-  const changeHandler = (event) => {
-    console.log(event)
-    selectedFile.current = event.target.files[0];
-    console.log(event.target.files[0])
-    console.log(selectedFile.current)
-		setIsSelected(true);
-  };
-
-  const handleSubmission = () => {
-    const formData = new FormData()
-    formData.append('file', selectedFile.current)
-    console.log(formData)
-
-    fetch(
-			'http://localhost:5000/upload',
-			{
-				method: 'POST',
-				body: formData,
-			}
-		)
-			.then((result) => {
-				console.log('Success:', result);
-			})
-			.catch((error) => {
-				console.error('Error:', error);
-			});
-	};
-
   const [messages, setMessages] = useState([
     {
       message: "Hello, I'm ChatGPT! Ask me anything!",
@@ -77,11 +44,8 @@ function App() {
     // So we need to reformat
 
     let apiMessages = chatMessages.map((messageObject) => {
-      let role = "";
       if (messageObject.sender === "ChatGPT") {
-        role = "assistant";
       } else {
-        role = "user";
       }
       return { role: role, content: messageObject.message}
     });
@@ -113,6 +77,23 @@ function App() {
       }
     };
 
+    // Example usage
+    // const query = apiMessages[apiMessages.length - 1].content;
+    // console.log(apiMessages)
+    // callApi(query)
+    //   .then(response => {
+    //     // Handle the response data
+    //     setMessages([...chatMessages, {
+    //       message: response.response.trim(),
+    //       sender: "ChatGPT"
+    //     }]);
+    //     setIsTyping(false);
+    //   })
+    //   .catch(error => {
+    //     console.error('API error:', error);
+    //     // Handle the error
+    //   });
+
     const query = apiMessages[apiMessages.length - 1].content;
     console.log(apiMessages)
     callApi(query)
@@ -120,7 +101,7 @@ function App() {
         console.log(response)
         // Handle the response data
         setMessages([...chatMessages, {
-          message: response.response.trim(),
+          message: response.response,
           sender: "ChatGPT"
         }]);
         setIsTyping(false);
@@ -129,46 +110,49 @@ function App() {
         console.error('API error:', error);
         // Handle the error
       });
+
+
+
+    // await fetch("https://api.openai.com/v1/chat/completions", 
+    // {
+    //   method: "POST",
+    //   headers: {
+    //     "Authorization": "Bearer " + API_KEY,
+    //     "Content-Type": "application/json"
+    //   },
+    //   body: JSON.stringify(apiRequestBody)
+    // }).then((data) => {
+    //   return data.json();
+    // }).then((data) => {
+    //   console.log(data);
+    //   setMessages([...chatMessages, {
+    //     message: data.choices[0].message.content,
+    //     sender: "ChatGPT"
+    //   }]);
+    //   setIsTyping(false);
+    // });
   }
 
   return (
     <div className="App">
-      <div style={{ position:"relative", height: "800px", width: "700px" }}>
-      <div>
-        <input type="file" name="file" onChange={changeHandler} />
-        {isSelected ? (
-				<div>
-					<p>Filename: {selectedFile.current.name}</p>
-					<p>Filetype: {selectedFile.current.type}</p>
-					<p>Size in bytes: {selectedFile.current.size}</p>
-					<p>
-						lastModifiedDate:{' '}
-						{selectedFile.current.lastModifiedDate.toLocaleDateString()}
-					</p>
-				</div>
-			) : (
-				<p>Select a file to show details</p>
-			)}
-        <div>
-          <button onClick={handleSubmission}>Submit</button>
-        </div>
-		  </div>
+      <div style={{ position:"relative", height: "800px", width: "700px"  }}>
         <MainContainer>
-          <ChatContainer>
+          <ChatContainer>       
             <MessageList 
               scrollBehavior="smooth" 
               typingIndicator={isTyping ? <TypingIndicator content="ChatGPT is typing" /> : null}
             >
-              {messages.map((message, i) => (
-                <Message key={i} model={message} />
-              ))}
+              {messages.map((message, i) => {
+                console.log(message)
+                return <Message key={i} model={message} />
+              })}
             </MessageList>
-            <MessageInput placeholder="Type message here" onSend={handleSend} />
+            <MessageInput placeholder="Type message here" onSend={handleSend} />        
           </ChatContainer>
         </MainContainer>
       </div>
     </div>
-  );
+  )
 }
 
 export default App
